@@ -1,84 +1,110 @@
 import React, { useState } from "react";
-import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
+import Button from "react-bootstrap/Button";
+
 import { validateEmail } from "../utils/helpers";
-function Contact() {
+
+function ContactForm() {
+ 
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [message, setMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [valid, setValid] = useState(false)
+
   const handleInputChange = (e) => {
-    // Getting the value and name of the input which triggered the change
     const { target } = e;
     const inputType = target.name;
     const inputValue = target.value;
 
-    // Based on the input type, we set the state of either email, username, and password
     if (inputType === "email") {
-      const isValid = validateEmail(inputValue);
-      if (isValid) {
-        setErrorMessage("");
-        setEmail(inputValue);
-      } else setErrorMessage("Email is invalid!");
+      setEmail(inputValue);
     } else if (inputType === "name") {
-      if (inputValue) {
-        setErrorMessage("");
-        setName(inputValue);
-      } else setErrorMessage("Name is required!");
+      setName(inputValue);
     } else {
-      if (inputValue) {
-        setErrorMessage("");
-        setMessage(inputValue);
-      } else setErrorMessage("Message is required!");
+      setMessage(inputValue);
     }
   };
-  return (
-    <Form>
-      <Form.Group className="mb-3" controlId="formBasicText">
-        <Form.Label>Name</Form.Label>
-        <Form.Control
-          type="text"
-          placeholder="Enter name"
-          defaultValue={name}
-          name="name"
-          onBlur={handleInputChange}
-        />
-      </Form.Group>
-      <Form.Group className="mb-3" controlId="formBasicEmail">
-        <Form.Label>Email address</Form.Label>
-        <Form.Control
-          type="email"
-          placeholder="Enter email"
-          defaultValue={email}
-          name="email"
-          onBlur={handleInputChange}
-        />
-        <Form.Text className="text-muted">
-          We'll never share your email with anyone else.
-        </Form.Text>
-      </Form.Group>
 
-      <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
-        <Form.Label>Message</Form.Label>
-        <Form.Control
-          as="textarea"
-          rows={3}
-          placeholder="Enter message"
-          defaultValue={message}
-          name="message"
-          onBlur={handleInputChange}
-        />
-      </Form.Group>
-      <Button variant="primary" type="submit">
-        Submit
-      </Button>
-      {errorMessage && (
-        <div>
+  const handleValidation = (e) => {
+    if (e.target.name === "email") {
+      if (!validateEmail(e.target.value)) {
+        setErrorMessage("Your email is invalid");
+      } else {
+        setErrorMessage("");
+        setValid(true)
+      }
+    } else {
+      if (!e.target.value.length) {
+        setErrorMessage("Required field");
+      } else {
+        setErrorMessage("");
+      }
+    }
+  };
+
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    setErrorMessage("Email sent!");
+
+    setName("");
+    setMessage("");
+    setEmail("");
+  };
+
+  return (
+    <div>
+      <Form className="form" onSubmit={handleFormSubmit}>
+        <Form.Group className="mb-3">
+          <Form.Label>Name</Form.Label>
+          <Form.Control
+            value={name}
+            name="name"
+            onChange={handleInputChange}
+            type="text"
+            placeholder="name"
+            onBlur={handleValidation}
+          />
+        </Form.Group>
+        <Form.Group className="mb-3">
+          <Form.Label>email</Form.Label>
+          <Form.Control
+            value={email}
+            name="email"
+            onChange={handleInputChange}
+            type="email"
+            placeholder="email"
+            onBlur={handleValidation}
+          />
+          <Form.Text>We'll never share your email.</Form.Text>
+          <br />
+        </Form.Group>
+
+        <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
+          <Form.Label>Message</Form.Label>
+          <Form.Control
+            as="textarea"
+            rows={3}
+            value={message}
+            name="message"
+            onChange={handleInputChange}
+            type="message"
+            placeholder="message"
+            onBlur={handleValidation}
+          />
+        </Form.Group>
+        <Button disabled={(!(email && name && message && valid && !errorMessage))}onClick={handleFormSubmit}>
+          Submit
+        </Button>
+        {errorMessage && (
+        <div className="error">
           <p className="error-text">{errorMessage}</p>
         </div>
       )}
-    </Form>
+      </Form>
+     
+    </div>
   );
 }
 
-export default Contact;
+export default ContactForm;
